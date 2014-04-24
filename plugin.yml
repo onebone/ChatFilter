@@ -1,0 +1,27 @@
+name: ChatFilter
+main: ChatFilter\ChatFilter
+version: "1.0"
+author: onebone
+api: "1.0.0"
+
+commands:
+ chatfilter:
+  permission: chatfilter.commands.chatfilter
+  description: Shows list of filtered list
+  usage: /chatfilter
+ filter:
+  permission: chatfilter.commands.filter
+  description: ChatFilter manage command
+  usage: /filter <add | del | reload> [message]
+ 
+permissions:
+ chatfilter.commands.*:
+  default: op
+  description: Allows all commands of ChatFilter
+  children:
+   chatfilter.commands.chatfilter:
+    default: true
+    description: Allows command to show list of filtered list
+   chatfilter.commands.filter:
+    default: op
+    description: Allows command to manage commands of ChatFilter
