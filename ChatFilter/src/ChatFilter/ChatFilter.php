@@ -2,20 +2,35 @@
 
 namespace ChatFilter;
 
-class ChatFilter extends \pocketmine\plugin\PluginBase implements \pocketmine\command\CommandExecutor, \pocketmine\event\Listener{
+use pocketmine\plugin\PluginBase;
+use pocketmine\event\Listener;
+use pocketmine\utils\Config;
+use pocketmine\command\CommandSender;
+use pocketmine\command\Command;
+use pocketmine\event\player\PlayerChatEvent;
+
+class ChatFilter extends PluginBase implements Listener{
+	private $mosaicList;
+
 	public function onEnable(){
 		@mkdir($this->getDataFolder());
-		$this->config = (new \pocketmine\utils\Config($this->getDataFolder()."config.yml", \pocketmine\utils\Config::YAML, array(
+		$this->config = (new Config($this->getDataFolder()."config.yml", Config::YAML, array(
 			"messages" => array(
 				"fuck"
 			),
 			"identify-capital-alphabet" => false,
 			"mosaic" => "*"
 		)))->getAll();
+		
+		$this->mosaicList = array();
+		foreach($this->config["messages"] as $m){
+			$this->mosaicList[] = str_repeat($this->config["mosaic"], strlen($m));
+		}
+		
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 	}
 	
-	public function onCommand(\pocketmine\command\CommandSender $sender, \pocketmine\command\Command $command, $label, array $params){
+	public function onCommand(CommandSender $sender, Command $command, $label, array $params){
 		switch($command->getName()){
 			case "chatfilter":
 			$output = "[ChatFilter] Filtered words : \n";
@@ -64,20 +79,13 @@ class ChatFilter extends \pocketmine\plugin\PluginBase implements \pocketmine\co
 		}
 	}
 	
-	public function onChatEvent(\pocketmine\event\player\PlayerChatEvent $event){
+	public function onChatEvent(PlayerChatEvent $event){
 		$message = $event->getMessage();
-		foreach($this->config["messages"] as $m){
-			if(($this->config["identify-capital-alphabet"] ? strpos($message, $m) : stripos($message, $m)) !== false){
-				$cnt = strlen($m);
-				$mosaic = str_repeat($this->config["mosaic"], $cnt);
-				$message = str_ireplace($m, $mosaic, $message);
-			}
-		}
-		$event->setMessage($message);
+		$event->setMessage($this->config["identify-capital-alphabet"] ? str_replace($this->config["messages"], $this->mosaicList, $message) : str_ireplace($this->config["messages"], $this->mosaicList, $message));
 	}
 	
 	public function onDisable(){
-		$config = (new \pocketmine\utils\Config($this->getDataFolder()."config.yml", \pocketmine\utils\Config::YAML));
+		$config = (new Config($this->getDataFolder()."config.yml", Config::YAML));
 		$config->setAll($this->config);
 		$config->save();
 	}
