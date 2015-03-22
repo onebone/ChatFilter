@@ -16,7 +16,7 @@ class ChatFilter extends PluginBase implements Listener{
 		@mkdir($this->getDataFolder());
 		$this->config = (new Config($this->getDataFolder()."config.yml", Config::YAML, array(
 			"messages" => array(
-				"fuck"
+				""
 			),
 			"identify-capital-alphabet" => false,
 			"mosaic" => "*"
@@ -29,14 +29,6 @@ class ChatFilter extends PluginBase implements Listener{
 		
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 	}
-	
-	public function onCommand(CommandSender $sender, Command $command, $label, array $params){
-		switch($command->getName()){
-			case "chatfilter":
-			$output = "[ChatFilter] Filtered words : \n";
-			foreach($this->config["messages"] as $m){
-				$output .= $m.", ";
-			}
 			$output = substr($output, 0, -2);
 			$sender->sendMessage($output);
 			return true;
@@ -55,7 +47,7 @@ class ChatFilter extends PluginBase implements Listener{
 					goto usage;
 				}
 				$this->config["messages"][] = $message;
-				$sender->sendMessage("[ChatFilter] Added \"$message\" to the filter list");
+				$sender->sendMessage("[ChatFilter] Added that word to the filter list");
 				break;
 				case "rm":
 				case "del":
@@ -66,10 +58,10 @@ class ChatFilter extends PluginBase implements Listener{
 				}
 				$key = array_search($message, $this->config["messages"]);
 				if($key === false){
-					$sender->sendMessage("[ChatFilter] \"$message\" is not in the message list");
+					$sender->sendMessage("[ChatFilter] That word is not in the message list");
 				}else{
 					unset($this->config["messages"][$key]);
-					$sender->sendMessage( "[ChatFilter] Removed \"$message\" from the list");
+					$sender->sendMessage( "[ChatFilter] Removed that word from the list");
 				}
 				break;
 				default:
